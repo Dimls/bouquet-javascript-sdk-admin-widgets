@@ -49,6 +49,9 @@
                 if (options.afterRender) {
                     this.afterRender = options.afterRender;
                 }
+                if (options.changeDimensionOrder){
+                    this.changeDimensionOrder = options.changeDimensionOrder;
+                }
                 if (options.singleSelect) {
                     this.singleSelect = options.singleSelect;
                 }
@@ -244,7 +247,7 @@
                             } else {
                                 name = facet1.dimension.name;
                             }
-                            var option = {"label" : name, "value" : facet1.id, "selected" : selected, "error" : facetList[dimIdx].error, "oid" : facet1.dimension.oid};
+                            var option = {"label" : name, "description" : facet1.dimension.description , "value" : facet1.id, "selected" : selected, "error" : facetList[dimIdx].error, "oid" : facet1.dimension.oid, };
                             jsonData.options.push(option);
                         }
                     }
@@ -313,6 +316,23 @@
 
         renderView: function(jsonData) {
             var me = this;
+
+            // Check if we have reorder
+            if(this.changeDimensionOrder){
+                var groupArr = [];
+                var nonGroupArr = [];
+                var finalArr = [];
+                jsonData.options.forEach(function (el) {
+                     if(el.description === 'TestGroup'){
+                         groupArr.push(el);
+                     }
+                     else{
+                         nonGroupArr.push(el);
+                     }
+                });
+                finalArr = groupArr.concat(nonGroupArr);
+                jsonData.options = finalArr;
+            }
 
             if (this.$el.find("select").length === 0) {
                 var html = this.template(jsonData);

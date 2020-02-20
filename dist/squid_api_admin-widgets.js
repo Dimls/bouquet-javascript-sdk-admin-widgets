@@ -1757,6 +1757,9 @@ function program1(depth0,data) {
             if (options.disableRightClickOnSelect) {
                 this.disableRightClickOnSelect = options.disableRightClickOnSelect;
             }
+            if (options.excludeBookmark){
+                this.excludeBookmark = options.excludeBookmark;
+            }
         },
 
         loadCollection : function(parentId) {
@@ -1962,6 +1965,8 @@ function program1(depth0,data) {
             console.log("render CollectionManagementWidget "+this.type);
             var project = this.config.get("project");
             var currentBookmark = this.config.get("bookmark");
+            var me = this;
+            
 
             this.jsonData = {
                 collectionLoaded : !this.collectionLoading,
@@ -1990,6 +1995,7 @@ function program1(depth0,data) {
                 for (i=0; i<this.collection.size(); i++) {
                     var item = this.collection.at(i);
                     var validPath = false;
+
                     if (this.filteredPaths === null) {
                         validPath = true;
                     } else {
@@ -2007,6 +2013,7 @@ function program1(depth0,data) {
                         }
                     }
                     var validOid = false;
+
                     if (this.filteredOids === null) {
                         validOid = true ;
                     } else {
@@ -2016,6 +2023,7 @@ function program1(depth0,data) {
                             }
                         }
                     }
+
                     if (this.excludedOids !== null) {
                         for (j=0; j<this.excludedOids.length; j++) {
                             if (this.excludedOids[j] === item.get("oid")) {
@@ -2126,6 +2134,7 @@ function program1(depth0,data) {
                 if (_.where(collection, {active: true}).length === 0 && collection.length > 0) {
                     collection[0].active = true;
                 }
+
                 this.jsonData.collection = collection;
                 if (this.returnPaths) {
                     this.returnPaths.call(paths);
@@ -4747,6 +4756,9 @@ function program1(depth0,data) {
                 if (options.afterRender) {
                     this.afterRender = options.afterRender;
                 }
+                if (options.changeDimensionOrder){
+                    this.changeDimensionOrder = options.changeDimensionOrder;
+                }
                 if (options.singleSelect) {
                     this.singleSelect = options.singleSelect;
                 }
@@ -4942,7 +4954,7 @@ function program1(depth0,data) {
                             } else {
                                 name = facet1.dimension.name;
                             }
-                            var option = {"label" : name, "value" : facet1.id, "selected" : selected, "error" : facetList[dimIdx].error, "oid" : facet1.dimension.oid};
+                            var option = {"label" : name, "description" : facet1.dimension.description , "value" : facet1.id, "selected" : selected, "error" : facetList[dimIdx].error, "oid" : facet1.dimension.oid, };
                             jsonData.options.push(option);
                         }
                     }
@@ -5011,6 +5023,23 @@ function program1(depth0,data) {
 
         renderView: function(jsonData) {
             var me = this;
+
+            // Check if we have reorder
+            if(this.changeDimensionOrder){
+                var groupArr = [];
+                var nonGroupArr = [];
+                var finalArr = [];
+                jsonData.options.forEach(function (el) {
+                     if(el.description === 'TestGroup'){
+                         groupArr.push(el);
+                     }
+                     else{
+                         nonGroupArr.push(el);
+                     }
+                });
+                finalArr = groupArr.concat(nonGroupArr);
+                jsonData.options = finalArr;
+            }
 
             if (this.$el.find("select").length === 0) {
                 var html = this.template(jsonData);

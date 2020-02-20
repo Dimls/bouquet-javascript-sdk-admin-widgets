@@ -62,6 +62,9 @@
             if (options.disableRightClickOnSelect) {
                 this.disableRightClickOnSelect = options.disableRightClickOnSelect;
             }
+            if (options.excludeBookmark){
+                this.excludeBookmark = options.excludeBookmark;
+            }
         },
 
         loadCollection : function(parentId) {
@@ -267,6 +270,8 @@
             console.log("render CollectionManagementWidget "+this.type);
             var project = this.config.get("project");
             var currentBookmark = this.config.get("bookmark");
+            var me = this;
+            
 
             this.jsonData = {
                 collectionLoaded : !this.collectionLoading,
@@ -295,6 +300,7 @@
                 for (i=0; i<this.collection.size(); i++) {
                     var item = this.collection.at(i);
                     var validPath = false;
+
                     if (this.filteredPaths === null) {
                         validPath = true;
                     } else {
@@ -312,6 +318,7 @@
                         }
                     }
                     var validOid = false;
+
                     if (this.filteredOids === null) {
                         validOid = true ;
                     } else {
@@ -321,6 +328,7 @@
                             }
                         }
                     }
+
                     if (this.excludedOids !== null) {
                         for (j=0; j<this.excludedOids.length; j++) {
                             if (this.excludedOids[j] === item.get("oid")) {
@@ -431,6 +439,7 @@
                 if (_.where(collection, {active: true}).length === 0 && collection.length > 0) {
                     collection[0].active = true;
                 }
+
                 this.jsonData.collection = collection;
                 if (this.returnPaths) {
                     this.returnPaths.call(paths);
